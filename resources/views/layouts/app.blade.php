@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>@yield('title') | SIMRS UMM Hospital</title>
+    <title>@yield('title') | Vimedika App</title>
     <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
     {{-- <link rel="icon" href="{{ asset('images/logo.png') }}"> --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
