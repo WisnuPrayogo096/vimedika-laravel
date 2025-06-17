@@ -78,7 +78,6 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             $errorMessage = 'An error occurred: ' . $e->getMessage();
         }
-
         return view('auth::pages.auth.branch', compact('branches', 'errorMessage'));
     }
 

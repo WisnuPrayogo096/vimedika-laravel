@@ -1,8 +1,45 @@
-@import '@fortawesome/fontawesome-free/css/all.css';
+@import "@fortawesome/fontawesome-free/css/all.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+.bg-primary {
+    background-color: #5d8736;
+}
+
+.text-primary {
+    color: #5d8736;
+}
+
+.border-primary {
+    border-color: #5d8736;
+}
+
+/* Warna Sekunder (Secondary) */
+.bg-secondary {
+    background-color: #5cb338;
+}
+
+.text-secondary {
+    color: #5cb338;
+}
+
+.border-secondary {
+    border-color: #5cb338;
+}
+
+/* Warna Tersier (Tertiary) */
+.bg-tertiary {
+    background-color: #a9c46c;
+}
+
+.text-tertiary {
+    color: #a9c46c;
+}
+
+.border-tertiary {
+    border-color: #a9c46c;
+}
 
 .active-menu {
     color: #2563eb;
@@ -108,7 +145,8 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-.light .select2-results__option--highlighted.select2-results__option--selectable {
+.light
+    .select2-results__option--highlighted.select2-results__option--selectable {
     background-color: rgb(243 244 246) !important;
     color: hsl(214, 25%, 11%) !important;
 }
@@ -172,11 +210,16 @@ input[type="number"] {
     border: 1px solid rgb(75 85 99) !important;
 }
 
-.dark .select2-container--default .select2-selection--multiple .select2-selection__choice {
+.dark
+    .select2-container--default
+    .select2-selection--multiple
+    .select2-selection__choice {
     background-color: #151b23;
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
+.select2-container--default
+    .select2-selection--multiple
+    .select2-selection__choice {
     font-size: 14px !important;
 }
 
@@ -241,12 +284,12 @@ input:-webkit-autofill:active {
 }
 
 .error {
-    color: #E94749;
+    color: #e94749;
     font-size: 14px;
 }
 
 .dark .error {
-    color: #F07477;
+    color: #f07477;
     font-size: 14px;
 }
 
@@ -300,7 +343,6 @@ input:-webkit-autofill:active {
     color: #e0e0e0;
 }
 
-
 .dark .ql-toolbar .ql-picker-label,
 .dark .ql-toolbar .ql-stroke {
     color: #e0e0e0;
@@ -317,5 +359,5 @@ input:-webkit-autofill:active {
 }
 
 .dark .active-menu:hover {
-    background-color: #1E3A8A;
+    background-color: #1e3a8a;
 }
