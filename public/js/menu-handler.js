@@ -1,7 +1,3 @@
-/**
- * Sidebar Menu Manager
- * Handles dynamic menu rendering based on user roles
- */
 class SidebarMenuManager {
     constructor() {
         this.menuList = document.getElementById("menu-list");
@@ -21,9 +17,6 @@ class SidebarMenuManager {
         this.loadMenus();
     }
 
-    /**
-     * Load menus from cache or fetch from API
-     */
     async loadMenus() {
         try {
             const cachedData = this.getCachedMenus();
@@ -41,9 +34,6 @@ class SidebarMenuManager {
         }
     }
 
-    /**
-     * Get cached menus with validation
-     */
     getCachedMenus() {
         try {
             const cachedMenus = sessionStorage.getItem(this.cacheKey);
@@ -65,9 +55,6 @@ class SidebarMenuManager {
         return null;
     }
 
-    /**
-     * Check if cache is still valid (valid for 30 minutes)
-     */
     isCacheValid(cachedData) {
         if (!cachedData.timestamp) return false;
 
@@ -77,9 +64,6 @@ class SidebarMenuManager {
         return cacheAge < maxAge;
     }
 
-    /**
-     * Fetch menus from API
-     */
     async fetchMenusFromAPI() {
         try {
             const response = await fetch("/api/menus", {
@@ -95,16 +79,12 @@ class SidebarMenuManager {
             }
 
             const result = await response.json();
-
             if (!result.success) {
                 throw new Error(result.message || "Failed to fetch menus");
             }
 
-            // Cache the results
             this.cacheMenus(result.data, result.user_role);
-
-            // Render menus
-            this.renderMenus(result.data);
+            this.renderMenus(result.data, result.user_role);
 
             console.log(`Menus loaded for role: ${result.user_role}`);
         } catch (error) {
@@ -113,9 +93,6 @@ class SidebarMenuManager {
         }
     }
 
-    /**
-     * Cache menus data
-     */
     cacheMenus(menus, userRole) {
         try {
             sessionStorage.setItem(this.cacheKey, JSON.stringify(menus));
@@ -129,18 +106,12 @@ class SidebarMenuManager {
         }
     }
 
-    /**
-     * Clear cache
-     */
     clearCache() {
         sessionStorage.removeItem(this.cacheKey);
         sessionStorage.removeItem(this.userRoleKey);
         sessionStorage.removeItem(this.cacheKey + "_timestamp");
     }
 
-    /**
-     * Render menus in the sidebar
-     */
     renderMenus(menus) {
         if (!Array.isArray(menus) || menus.length === 0) {
             this.showNoMenusMessage();
@@ -155,11 +126,14 @@ class SidebarMenuManager {
         });
 
         this.attachEventListeners();
+
+        const userRoleElem = document.querySelector(".user-role");
+        const role = sessionStorage.getItem(this.userRoleKey);
+        if (userRoleElem && role) {
+            userRoleElem.textContent = role;
+        }
     }
 
-    /**
-     * Create a single menu item
-     */
     createMenuItem(menu, index) {
         const li = document.createElement("li");
         const isActive = this.isMenuActive(menu);
@@ -170,12 +144,15 @@ class SidebarMenuManager {
             li.innerHTML = this.createSimpleMenuItem(menu, isActive);
         }
 
+        // style setelah dashboard
+        if (menu.label && menu.label.toLowerCase() === "dashboard") {
+            li.innerHTML +=
+                "<div class='mt-4 py-4 border-t border-white opacity-100 text-white text-center text-sm'>APLIKASI & HALAMAN</div>";
+        }
+
         return li;
     }
 
-    /**
-     * Check if menu is active based on current path
-     */
     isMenuActive(menu) {
         const paths = this.currentPath.split("/");
 
@@ -193,9 +170,6 @@ class SidebarMenuManager {
         return false;
     }
 
-    /**
-     * Create parent menu item with submenu
-     */
     createParentMenuItem(menu, index, isActive) {
         const activeClass = isActive ? "active-menu" : "";
         const chevronIcon = isActive
@@ -205,7 +179,7 @@ class SidebarMenuManager {
 
         return `
             <button type="button"
-                class="menu flex items-center w-full p-2 text-base text-white transition duration-75 rounded-lg group hover:bg-slate-100 dark:hover:text-gray-100 dark:text-gray-400 dark:hover:hover:bg-eerie-black group hover:text-slate-700 ${activeClass}"
+                class="menu flex items-center w-full p-2 text-base text-white transition duration-75 rounded-lg group hover:bg-slate-100 group hover:text-slate-700 ${activeClass}"
                 aria-controls="menu-dropdown-${index + 1}"
                 data-collapse-toggle="menu-dropdown-${index + 1}">
                 <i class="${
@@ -224,9 +198,6 @@ class SidebarMenuManager {
         `;
     }
 
-    /**
-     * Create submenu items
-     */
     createSubmenuItems(submenu) {
         return submenu
             .map((item) => {
@@ -236,7 +207,7 @@ class SidebarMenuManager {
                 return `
                 <li>
                     <a href="${item.path}"
-                        class="menu flex items-center ms-6 p-2 text-white rounded-lg dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100 dark:hover:hover:bg-eerie-black group hover:text-slate-700 text-base ${activeClass}">
+                        class="menu flex items-center ms-6 p-2 text-white rounded-lg group hover:text-slate-700 text-base ${activeClass}">
                         ${item.label}
                     </a>
                 </li>
@@ -245,9 +216,6 @@ class SidebarMenuManager {
             .join("");
     }
 
-    /**
-     * Check if submenu is active
-     */
     isSubmenuActive(submenu) {
         const submenuPaths = submenu.path.split("/");
         const currentPaths = this.currentPath.split("/").filter(Boolean);
@@ -269,24 +237,18 @@ class SidebarMenuManager {
         return false;
     }
 
-    /**
-     * Create simple menu item without submenu
-     */
     createSimpleMenuItem(menu, isActive) {
         const activeClass = isActive ? "active-menu" : "";
 
         return `
             <a href="${menu.path}"
-                class="menu flex items-center p-2 text-white rounded-lg dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100 dark:hover:hover:bg-eerie-black group hover:text-slate-700 text-base ${activeClass}">
+                class="menu flex items-center p-2 text-white rounded-lg hover:bg-slate-100 group hover:text-slate-700 text-base ${activeClass}">
                 <i class="${menu.icon} text-base w-5 text-left" aria-hidden="true"></i>
                 <span class="flex-1 ms-3 whitespace-nowrap">${menu.label}</span>
             </a>
         `;
     }
 
-    /**
-     * Attach event listeners for dropdown toggles
-     */
     attachEventListeners() {
         document
             .querySelectorAll("[data-collapse-toggle]")
@@ -298,9 +260,6 @@ class SidebarMenuManager {
             });
     }
 
-    /**
-     * Toggle dropdown menu
-     */
     toggleDropdown(button) {
         const targetId = button.getAttribute("aria-controls");
         const target = document.getElementById(targetId);
@@ -310,32 +269,30 @@ class SidebarMenuManager {
 
         target.classList.toggle("hidden");
 
-        // Update chevron icon
+        // Update chevron icon dan warna aktif
         if (target.classList.contains("hidden")) {
             chevronIcon.className = "fa-solid fa-chevron-left";
+            button.classList.remove("active-menu");
+            target.classList.remove("submenu-open");
         } else {
             chevronIcon.className = "fa-solid fa-chevron-down";
+            button.classList.add("active-menu");
+            target.classList.add("submenu-open");
         }
     }
 
-    /**
-     * Show error message when menu loading fails
-     */
     showErrorMessage() {
         this.menuList.innerHTML = `
             <li class="p-4 text-center text-red-500">
                 <i class="fa-solid fa-exclamation-triangle mb-2"></i>
                 <p>Failed to load menu</p>
-                <button onclick="location.reload()" class="text-sm text-blue-500 underline mt-2">
+                <button onclick="location.reload()" class="text-sm text-green-500 underline mt-2">
                     Retry
                 </button>
             </li>
         `;
     }
 
-    /**
-     * Show message when no menus are available
-     */
     showNoMenusMessage() {
         this.menuList.innerHTML = `
             <li class="p-4 text-center text-gray-500">
@@ -345,23 +302,16 @@ class SidebarMenuManager {
         `;
     }
 
-    /**
-     * Refresh menus (useful for role changes)
-     */
     async refreshMenus() {
         this.clearCache();
         await this.loadMenus();
     }
 
-    /**
-     * Get current user role
-     */
     getCurrentUserRole() {
         return sessionStorage.getItem(this.userRoleKey) || "guest";
     }
 }
 
-// Utility functions for external use
 window.SidebarUtils = {
     refreshMenus: () => {
         if (window.sidebarMenuManager) {
@@ -383,12 +333,19 @@ window.SidebarUtils = {
     },
 };
 
-// Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
     window.sidebarMenuManager = new SidebarMenuManager();
+
+    // Pasang event listener logout jika tombol ada
+    const btnLogout = document.getElementById("btn-logout");
+    if (btnLogout) {
+        btnLogout.addEventListener("click", () => {
+            SidebarUtils.clearMenuCache();
+            console.log("btn logout ditekan");
+        });
+    }
 });
 
-// Handle page visibility changes to refresh stale data
 document.addEventListener("visibilitychange", function () {
     if (!document.hidden && window.sidebarMenuManager) {
         const cachedData = window.sidebarMenuManager.getCachedMenus();
@@ -398,3 +355,42 @@ document.addEventListener("visibilitychange", function () {
         }
     }
 });
+
+if (!document.getElementById("custom-sidebar-menu-style")) {
+    const style = document.createElement("style");
+    style.id = "custom-sidebar-menu-style";
+    style.innerHTML = `
+        .active-menu {
+            background-color: #A9C46C !important;
+            color: #fff !important;
+        }
+        .active-menu > span,
+        .active-menu > i,
+        .active-menu > svg {
+            color: #fff !important;
+        }
+        .active-menu:focus {
+            background-color: #A9C46C !important;
+        }
+        .submenu-open > li > a {
+            background-color: #A9C46C !important;
+            color: #fff !important;
+            padding-left: 2.5rem !important;
+        }
+        .submenu-open > li > a > span,
+        .submenu-open > li > a > i,
+        .submenu-open > li > a > svg {
+            color: #fff !important;
+        }
+        .menu:hover, .menu:focus {
+            background-color: #A9C46C !important;
+            color: #fff !important;
+        }
+        .menu:hover > span,
+        .menu:hover > i,
+        .menu:hover > svg {
+            color: #fff !important;
+        }
+    `;
+    document.head.appendChild(style);
+}

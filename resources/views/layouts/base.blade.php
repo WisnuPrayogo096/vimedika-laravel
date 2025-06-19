@@ -15,19 +15,9 @@
         rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('style')
-    <script>
-        if (
-            localStorage.getItem('theme') === 'dark' ||
-            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
 </head>
 
-<body class="antialiased dark:bg-chinese-black">
+<body class="antialiased">
     @yield('content')
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     @stack('script')

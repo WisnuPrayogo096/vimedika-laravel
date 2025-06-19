@@ -9,15 +9,11 @@ use Illuminate\Support\Facades\Log;
 
 class MenuRolesController extends Controller
 {
-    /**
-     * Role-based menu access configuration
-     * Define which roles can access which menus
-     */
     private const ROLE_PERMISSIONS = [
-        'superadmin' => ['dashboard', 'master', 'transaksi'], // Full access
-        'operator' => ['dashboard', 'master', 'transaksi'],   // Full access
-        'finance' => ['dashboard', 'transaksi'],              // Limited access
-        'guest' => ['dashboard']                              // Minimal access
+        'superadmin' => ['dashboard', 'master', 'transaksi', 'audit-finance', 'laporan', 'membership', 'user-manage'],
+        'operator' => ['dashboard', 'master', 'transaksi'],
+        'finance' => ['dashboard', 'transaksi'],
+        'guest' => ['dashboard']
     ];
 
     public function findAllMenus(Request $request)
@@ -27,7 +23,6 @@ class MenuRolesController extends Controller
             $allMenus = $this->getAllMenusStructure();
             $filteredMenus = $this->filterMenusByRole($allMenus, $userRole);
 
-            // Apply search filter if provided
             $search = $request->input('search');
             if ($search) {
                 $filteredMenus = $this->searchMenus($filteredMenus, $search);
@@ -46,10 +41,7 @@ class MenuRolesController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Extract and decode user role from JWT token
-     */
+    
     private function getUserRoleFromToken(): string
     {
         if (!Session::has('api_token_branch')) {
@@ -57,14 +49,8 @@ class MenuRolesController extends Controller
         }
 
         try {
-            $jwt = Session::get('api_token_branch');
-
-            // For production, use proper JWT verification:
-            // $decoded = JWT::decode($jwt, new Key(config('jwt.secret'), 'HS256'));
-            // $decodedTokenPayload = (array) $decoded;
-
-            // Current implementation (less secure - consider upgrading)
-            $tokenParts = explode('.', $jwt);
+            $tokenBranch = Session::get('api_token_branch');
+            $tokenParts = explode('.', $tokenBranch);
             if (count($tokenParts) !== 3) {
                 throw new \InvalidArgumentException('Invalid JWT token format');
             }
@@ -83,16 +69,13 @@ class MenuRolesController extends Controller
         }
     }
 
-    /**
-     * Get all available menus structure
-     */
     private function getAllMenusStructure(): array
     {
         return [
             [
                 "name" => "dashboard",
                 "label" => "Dashboard",
-                "icon" => "fa-solid fa-house",
+                "icon" => "fa-solid fa-desktop",
                 "path" => "/",
                 "submenu" => [],
             ],
@@ -115,15 +98,27 @@ class MenuRolesController extends Controller
                         "path" => "/master/produk",
                     ],
                     [
+                        "label" => "Konversi Satuan",
+                        "path" => "/master/kon_satuan",
+                    ],
+                    [
+                        "label" => "Kategori Supplier",
+                        "path" => "/master/kat_supplier",
+                    ],
+                    [
                         "label" => "Supplier",
                         "path" => "/master/supplier",
+                    ],
+                    [
+                        "label" => "Produk Supplier",
+                        "path" => "/master/prod_supplier",
                     ]
                 ]
             ],
             [
                 "name" => "transaksi",
                 "label" => "Transaksi",
-                "icon" => "fa-solid fa-chart-line",
+                "icon" => "fa-solid fa-file-invoice-dollar",
                 "path" => "/transaksi",
                 "submenu" => [
                     [
@@ -135,41 +130,98 @@ class MenuRolesController extends Controller
                         "path" => "/transaksi/pembelian",
                     ],
                     [
-                        "label" => "Retur Penjualan",
-                        "path" => "/transaksi/retur-penjualan",
+                        "label" => "Copy Resep",
+                        "path" => "/transaksi/cop_resep",
                     ],
                     [
-                        "label" => "Retur Pembelian",
-                        "path" => "/transaksi/retur-pembelian",
+                        "label" => "Pengeluaran",
+                        "path" => "/transaksi/pengeluaran",
+                    ],
+                    [
+                        "label" => "Pemasukan Lain",
+                        "path" => "/transaksi/pem_lain",
+                    ]
+                ]
+            ],
+            [
+                "name" => "audit-finance",
+                "label" => "Audit & Finance",
+                "icon" => "fa-solid fa-chart-line",
+                "path" => "/audit-finance",
+                "submenu" => [
+                    [
+                        "label" => "Stok Awal",
+                        "path" => "/audit-finance/stok_awal",
+                    ],
+                    [
+                        "label" => "Stok Opname",
+                        "path" => "/audit-finance/stok_opname",
                     ]
                 ]
             ],
             [
                 "name" => "laporan",
                 "label" => "Laporan",
-                "icon" => "fa-solid fa-file-alt",
+                "icon" => "fa-solid fa-layer-group",
                 "path" => "/laporan",
                 "submenu" => [
                     [
-                        "label" => "Laporan Penjualan",
-                        "path" => "/laporan/penjualan",
+                        "label" => "Penjualan Bulanan",
+                        "path" => "/laporan/pen_bulanan",
                     ],
                     [
-                        "label" => "Laporan Pembelian",
-                        "path" => "/laporan/pembelian",
+                        "label" => "Near ED",
+                        "path" => "/laporan/near_ed",
                     ],
                     [
-                        "label" => "Laporan Stok",
-                        "path" => "/laporan/stok",
+                        "label" => "Neraca Saldo",
+                        "path" => "/laporan/ner_saldo",
+                    ]
+                ]
+            ],
+            [
+                "name" => "membership",
+                "label" => "Membership",
+                "icon" => "fa-solid fa-user",
+                "path" => "/membership",
+                "submenu" => [
+                    [
+                        "label" => "Kategori Member",
+                        "path" => "/membership/kat_member",
+                    ],
+                    [
+                        "label" => "Member",
+                        "path" => "/membership/member",
+                    ],
+                    [
+                        "label" => "Koin",
+                        "path" => "/membership/koin",
+                    ]
+                ]
+            ],
+            [
+                "name" => "user-manage",
+                "label" => "User Manage",
+                "icon" => "fa-solid fa-users-gear",
+                "path" => "/user-manage",
+                "submenu" => [
+                    [
+                        "label" => "User",
+                        "path" => "/user-manage/user",
+                    ],
+                    [
+                        "label" => "Cabang",
+                        "path" => "/user-manage/cabang",
+                    ],
+                    [
+                        "label" => "Otoritas",
+                        "path" => "/user-manage/otoritas",
                     ]
                 ]
             ]
         ];
     }
-
-    /**
-     * Filter menus based on user role permissions
-     */
+    
     private function filterMenusByRole(array $allMenus, string $userRole): array
     {
         $allowedMenus = self::ROLE_PERMISSIONS[$userRole] ?? [];
@@ -183,23 +235,18 @@ class MenuRolesController extends Controller
         });
     }
 
-    /**
-     * Search menus by keyword
-     */
     private function searchMenus(array $menus, string $search): array
     {
         $search = strtolower(trim($search));
 
         return array_filter($menus, function ($menu) use ($search) {
-            // Search in main menu name and label
             if (
                 str_contains(strtolower($menu['name']), $search) ||
                 str_contains(strtolower($menu['label']), $search)
             ) {
                 return true;
             }
-
-            // Search in submenu labels
+            
             if (!empty($menu['submenu'])) {
                 foreach ($menu['submenu'] as $submenu) {
                     if (str_contains(strtolower($submenu['label']), $search)) {
@@ -212,9 +259,6 @@ class MenuRolesController extends Controller
         });
     }
 
-    /**
-     * Get user permissions for debugging/frontend use
-     */
     public function getUserPermissions(Request $request)
     {
         try {

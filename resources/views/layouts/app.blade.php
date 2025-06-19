@@ -19,10 +19,9 @@
     <script src="{{ asset('js/search-menu.js') }}"></script>
     @stack('styles')
     <script src="{{ asset('js/menu-handler.js') }}"></script>
-    <script src="{{ asset('js/profile-handler.js') }}"></script>
 </head>
 
-<body class="antialiased dark:bg-chinese-black">
+<body class="antialiased">
     <x-template>
         <div class="fixed z-[999999]">
             <x-notify::notify />

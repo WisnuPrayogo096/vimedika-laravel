@@ -31,7 +31,7 @@
 
                         @foreach ($branches as $branch)
                             <div class="branch-item bg-white rounded-xl px-6 py-5 md:px-8 md:py-6 flex items-center space-x-4 shadow-md hover:shadow-lg outline-none hover:outline hover:outline-4 hover:outline-[#A0C878] focus:outline focus:outline-4 focus:outline-[#A0C878] transition-all duration-100 cursor-pointer mb-4"
-                                data-branch-id="{{ $branch['branch_id'] }}">
+                                data-branch='@json($branch)'>
                                 <i class="fa-solid fa-store text-primary text-4xl md:text-5xl mr-2"></i>
                                 <div class="flex flex-col px-1 md:px-2 lg:px-4 text-sm md:text-base">
                                     <h3 class="font-semibold text-gray-800 text-lg md:text-xl lg:text-2xl mb-1">
@@ -75,10 +75,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             $('.branch-item').on('click', function() {
-                const branchId = $(this).data('branch-id');
+                const branch = $(this).data('branch');
                 const loading = document.getElementById('loading');
                 loading.style.display = 'flex';
-                
+
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ route('auth.select-branch') }}';
@@ -88,18 +88,24 @@
                 csrfInput.name = '_token';
                 csrfInput.value = '{{ csrf_token() }}';
 
-                const branchInput = document.createElement('input');
-                branchInput.type = 'hidden';
-                branchInput.name = 'branch_id';
-                branchInput.value = branchId;
+                const branchIdInput = document.createElement('input');
+                branchIdInput.type = 'hidden';
+                branchIdInput.name = 'branch_id';
+                branchIdInput.value = branch.branch_id;
+
+                const branchDataInput = document.createElement('input');
+                branchDataInput.type = 'hidden';
+                branchDataInput.name = 'branch_data';
+                branchDataInput.value = JSON.stringify(branch);
 
                 form.appendChild(csrfInput);
-                form.appendChild(branchInput);
+                form.appendChild(branchIdInput);
+                form.appendChild(branchDataInput);
                 document.body.appendChild(form);
                 form.submit();
             });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
+
+            // Hide loading on error
             const loading = document.getElementById('loading');
             if (document.querySelector('.text-red-700')) {
                 loading.style.display = 'none';

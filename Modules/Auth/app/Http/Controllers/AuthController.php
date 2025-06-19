@@ -5,6 +5,7 @@ namespace Modules\Auth\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 
@@ -27,8 +28,15 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required|string|min:1',
             'password' => 'required|string|min:6'
-        ]);
+        ], [
+            'username.required' => 'Username wajib di isi.',
+            'username.string' => 'Username harus berupa teks.',
+            'username.min' => 'Username minimal harus 1 karakter.',
 
+            'password.required' => 'Password wajib di isi.',
+            'password.string' => 'Password harus berupa teks.',
+            'password.min' => 'Password minimal harus 6 karakter.'
+        ]);
 
         try {
             $response = Http::post($this->baseUrl . '/login', [
@@ -44,16 +52,23 @@ class AuthController extends Controller
                     Session::put('api_token_login', $token);
                     return redirect()->route('auth.select-branch.view');
                 } else {
-                    return back()->withInput()->withErrors(['api' => 'Login failed: Token not received']);
+                    return back()->withInput()->withErrors([
+                        'api' => 'Login gagal: Token tidak diterima dari server.'
+                    ]);
                 }
             } else {
                 $errorBody = $response->json();
-                return back()->withInput()->withErrors(['api' => $errorBody['message'] ?? 'Login failed. Please check your credentials.']);
+                return back()->withInput()->withErrors([
+                    'api' => $errorBody['message'] ?? 'Login gagal. Periksa kembali kredensial Anda.'
+                ]);
             }
         } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['api' => 'An error occurred: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors([
+                'api' => 'Terjadi kesalahan pada sistem: ' . $e->getMessage()
+            ]);
         }
     }
+
 
     public function showSelectBranchForm()
     {
@@ -78,6 +93,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             $errorMessage = 'An error occurred: ' . $e->getMessage();
         }
+
         return view('auth::pages.auth.branch', compact('branches', 'errorMessage'));
     }
 
@@ -85,6 +101,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'branch_id' => 'required|string',
+            'branch_data' => 'required|string',
         ]);
 
         if (!Session::has('api_token_login')) {
@@ -93,6 +110,8 @@ class AuthController extends Controller
 
         try {
             $token = Session::get('api_token_login');
+
+            // Kirim ke API set_branch
             $response = Http::withToken($token)->post($this->baseUrl . '/set_branch', [
                 'branch_id' => $request->branch_id,
             ]);
@@ -102,8 +121,14 @@ class AuthController extends Controller
                 $branchToken = $data['data'] ?? null;
 
                 if ($branchToken) {
+                    // Enkripsi data cabang untuk internal use
+                    $branchData = json_decode($request->branch_data, true);
+                    $internalToken = Crypt::encrypt($branchData);
+
                     Session::forget('api_token_login');
                     Session::put('api_token_branch', $branchToken);
+                    Session::put('branch_info_token', $internalToken);
+
                     return redirect()->route('dashboard');
                 } else {
                     return back()->withInput()->withErrors(['api' => 'Branch selection failed: Token not received.']);
@@ -116,11 +141,11 @@ class AuthController extends Controller
             return back()->withInput()->withErrors(['api' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
-
     public function logout()
     {
         Session::forget('api_token_login');
         Session::forget('api_token_branch');
+        Session::forget('branch_info_token');
         return redirect()->route('auth.login.view');
     }
 }

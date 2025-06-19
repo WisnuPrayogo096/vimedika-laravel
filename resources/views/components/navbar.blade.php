@@ -22,8 +22,8 @@
                 <button id="search-button"
                     class="items-center px-4 py-2 min-w-[16em] w-full hidden md:flex gap-2 border pl-4 border-gray-200 font-medium justify-between text-sm text-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="mr-2">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <span>Cari menu</span>
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i>
+                        <span class="text-xs">Cari menu</span>
                     </div>
                     <kbd class="px-2 text-xs font-semibold text-gray-800 bg-gray-100 rounded-lg">
                         Ctrl + M
@@ -35,7 +35,7 @@
                     <div class="flex items-center md:order-2 space-x-1 md:space-x-0 rtl:space-x-reverse">
                         <div
                             class="items-center flex gap-2 border pl-4 border-gray-200 hover:text-green-600 font-medium justify-center text-sm text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div class="pr-4 py-2 flex gap-2 items-center whitespace-nowrap otoritas">
+                            <div class="pr-4 py-2 flex gap-2 items-center whitespace-nowrap user-role">
                                 <i class="fa-solid fa-user-shield text-xs opacity-60"></i>
                                 <span>Loading...</span>
                             </div>
@@ -50,8 +50,10 @@
                         aria-expanded="false" data-dropdown-toggle="dropdown-user">
                         <span class="sr-only">Open user menu</span>
                         <div
-                            class="w-9 h-9 flex justify-center items-center rounded-full text-white font-semibold transition-colors">
-                            <span class="block">U</span>
+                            class="relative w-9 h-9 bg-blue-600 flex justify-center items-center rounded-full text-white font-semibold transition-colors">
+                            <span class="block">{{ $branchInfo['user_name'][0] ?? 'S' }}</span>
+                            <span
+                                class="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                         </div>
                     </button>
                 </div>
@@ -60,11 +62,11 @@
                 <div class="z-50 hidden my-4 text-base shadow-lg list-none bg-white divide-y divide-slate-100 rounded-lg border border-slate-200"
                     id="dropdown-user">
                     <div class="px-4 py-3" role="none">
-                        <p class="text-sm text-slate-900 profile_name font-medium" role="none">
-                            Loading...
+                        <p class="text-sm text-slate-900 font-medium" role="none">
+                            {{ $branchInfo['user_name'] ?? 'N/A' }}
                         </p>
-                        <p class="text-sm text-slate-500 truncate email mt-1" role="none">
-                            loading@example.com
+                        <p class="text-sm text-slate-500 truncate mt-1" role="none">
+                            {{ $branchInfo['branch_name'] ?? 'N/A' }}
                         </p>
                     </div>
                     <ul class="py-2" role="none">
