@@ -78,27 +78,25 @@
                 const branchId = $(this).data('branch-id');
                 const loading = document.getElementById('loading');
                 loading.style.display = 'flex';
-                console.log('Selected branch ID:', branchId);
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('auth.select-branch') }}';
 
-                // Create and submit form
-                // const form = document.createElement('form');
-                // form.method = 'POST';
-                // form.action = '{{ route('auth.select-branch') }}';
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
 
-                // const csrfInput = document.createElement('input');
-                // csrfInput.type = 'hidden';
-                // csrfInput.name = '_token';
-                // csrfInput.value = '{{ csrf_token() }}';
+                const branchInput = document.createElement('input');
+                branchInput.type = 'hidden';
+                branchInput.name = 'branch_id';
+                branchInput.value = branchId;
 
-                // const branchInput = document.createElement('input');
-                // branchInput.type = 'hidden';
-                // branchInput.name = 'branch_id';
-                // branchInput.value = branchId;
-
-                // form.appendChild(csrfInput);
-                // form.appendChild(branchInput);
-                // document.body.appendChild(form);
-                // form.submit();
+                form.appendChild(csrfInput);
+                form.appendChild(branchInput);
+                document.body.appendChild(form);
+                form.submit();
             });
         });
         document.addEventListener('DOMContentLoaded', function() {

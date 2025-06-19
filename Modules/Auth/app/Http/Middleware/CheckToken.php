@@ -14,27 +14,27 @@ class CheckToken
         $loginToken = Session::get('api_token_login');
         $branchToken = Session::get('api_token_branch');
 
-        // Jika dua-duanya tidak ada → redirect ke login
+        // jika dua-duanya tidak ada → redirect ke login
         if (!$loginToken && !$branchToken) {
-            return redirect('auth/login');
+            return redirect('/auth/login');
         }
 
-        // Cek token login jika tersedia
+        // cek token login jika tersedia
         if ($loginToken && $this->isTokenExpired($loginToken)) {
             Session::forget('api_token_login');
             Session::forget('api_token_branch');
-            return redirect('auth/login');
+            return redirect('/auth/login');
         }
 
-        // Harus punya token cabang
+        // harus punya token cabang
         if (!$branchToken) {
-            return redirect('auth/branch');
+            return redirect('/auth/branch');
         }
 
-        // Jika branchToken expired → redirect ke select branch
+        // jika branchToken expired → redirect ke select branch
         if ($this->isTokenExpired($branchToken)) {
             Session::forget('api_token_branch');
-            return redirect('auth/branch');
+            return redirect('/auth/branch');
         }
 
         return $next($request);
@@ -46,7 +46,6 @@ class CheckToken
             $payload = $this->decodeJwtPayload($jwt);
             return isset($payload['exp']) && time() >= $payload['exp'];
         } catch (\Throwable $e) {
-            // Jika decoding gagal, anggap token tidak valid
             return true;
         }
     }

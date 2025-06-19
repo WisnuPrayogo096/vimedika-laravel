@@ -16,33 +16,21 @@
         rel="stylesheet">
     @notifyCss
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- <script src="{{ asset('js/search-menu.js') }}"></script> --}}
+    <script src="{{ asset('js/search-menu.js') }}"></script>
     @stack('styles')
-    <script>
-        if (
-            localStorage.getItem('theme') === 'dark' ||
-            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-            localStorage.setItem("theme", "dark");
-            document.documentElement.classList.add('dark');
-        } else {
-            localStorage.setItem("theme", "light");
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
-    {{-- <script src="{{asset('js/menu-handler.js')}}"></script> --}}
+    <script src="{{ asset('js/menu-handler.js') }}"></script>
+    <script src="{{ asset('js/profile-handler.js') }}"></script>
 </head>
 
 <body class="antialiased dark:bg-chinese-black">
     <x-template>
         <div class="fixed z-[999999]">
-            @notify
+            <x-notify::notify />
         </div>
         @yield('content')
     </x-template>
     @notifyJs
-    {{-- <script src="{{ asset('js/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/select2.min.js') }}"></script>
-    <script src="{{ asset('/js/print.js') }}"></script> --}}
     @stack('scripts')
 </body>
